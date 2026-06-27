@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Doctor Dashboard — HMS{% endblock %}
+
+{% block content %}
+<div class="hero rounded-3 px-4 mb-4">
+  <h2>👨‍⚕️ Doctor Dashboard</h2>
+  <p class="mb-0">Welcome, Dr. {{ user.get_full_name|default:user.email }}</p>
+</div>
+
+<div class="row">
+  <!-- Add Slot Form -->
+  <div class="col-md-4">
+    <div class="card mb-4">
+      <div class="card-header"><h5 class="mb-0">➕ Add Availability Slot</h5></div>
+      <div class="card-body">
+        <form method="post" action="{% url 'create_slot' %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Date</label>
+            {{ form.date }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Start Time</label>
+            {{ form.start_time }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label">End Time</label>
+            {{ form.end_time }}
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Add Slot</button>
+        </form>
+      </div>
+    </div>
+
+    {% if not user.google_access_token %}
+    <div class="alert alert-warning">
+      <strong>📅 Connect Google Calendar</strong><br>
+      <small>Connect your Google account so patients' bookings appear in your calendar.</small>
+      <a href="{% url 'google_oauth_start' %}" class="btn btn-sm btn-warning mt-2 w-100">Connect Now</a>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Slots List -->
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">📋 My Availability Slots</h5>
+        <span class="badge bg-secondary">{{ slots.count }} total</span>
+      </div>
+      <div class="card-body p-0">
+        {% if slots %}
+        <div class="list-group list-group-flush">
+          {% for slot in slots %}
+          <div class="list-group-item slot-{{ slot.is_booked|yesno:'booked,free' }} d-flex justify-content-between align-items-center">
+            <div>
+              <strong>{{ slot.date|date:"D, d M Y" }}</strong>
+              <span class="text-muted mx-2">|</span>
+              {{ slot.start_time|time:"H:i" }} – {{ slot.end_time|time:"H:i" }}
+              {% if slot.is_booked %}
+              <span class="badge bg-danger ms-2">Booked</span>
+              {% if slot.booking %}
+              <small class="text-muted ms-1">by {{ slot.booking.patient.get_full_name|default:slot.booking.patient.email }}</small>
+              {% endif %}
+              {% else %}
+              <span class="badge bg-success ms-2">Available</span>
+              {% endif %}
+            </div>
+            {% if not slot.is_booked %}
+            <form method="post" action="{% url 'delete_slot' slot.pk %}" onsubmit="return confirm('Delete this slot?')">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+            </form>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="p-4 text-center text-muted">
+          <p>No availability slots yet. Add one to the left.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

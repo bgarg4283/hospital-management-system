@@ -1,0 +1,2 @@
+# No additional dependencies needed for the email service.
+# Python stdlib: smtplib, email, json, logging, os — all built-in.

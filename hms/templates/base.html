@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}HMS{% endblock %}</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body { background: #f0f4f8; font-family: 'Segoe UI', sans-serif; }
+    .navbar { background: #1a3c5e !important; }
+    .navbar-brand, .nav-link { color: #fff !important; }
+    .card { border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+    .card-header { background: #1a3c5e; color: #fff; border-radius: 12px 12px 0 0 !important; }
+    .btn-primary { background: #1a3c5e; border-color: #1a3c5e; }
+    .btn-primary:hover { background: #0f2540; border-color: #0f2540; }
+    .badge-doctor { background: #17a2b8; }
+    .badge-patient { background: #28a745; }
+    .slot-free { border-left: 4px solid #28a745; }
+    .slot-booked { border-left: 4px solid #dc3545; opacity:.7; }
+    .hero { background: linear-gradient(135deg,#1a3c5e,#2d6a9f); color:#fff; padding:3rem 0; margin-bottom:2rem; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="/">🏥 HMS</a>
+    {% if user.is_authenticated %}
+    <div class="ms-auto d-flex align-items-center gap-3">
+      <span class="text-white-50 small">
+        {{ user.get_full_name|default:user.email }}
+        <span class="badge bg-info ms-1">{{ user.role }}</span>
+      </span>
+      {% if not user.google_access_token %}
+      <a href="{% url 'google_oauth_start' %}" class="btn btn-sm btn-outline-light">🗓 Connect Google Calendar</a>
+      {% else %}
+      <span class="text-success small">✓ Calendar connected</span>
+      {% endif %}
+      <a href="{% url 'logout' %}" class="btn btn-sm btn-outline-light">Logout</a>
+    </div>
+    {% else %}
+    <div class="ms-auto">
+      <a href="{% url 'login' %}" class="btn btn-sm btn-outline-light me-2">Login</a>
+      <a href="{% url 'signup' %}" class="btn btn-sm btn-light">Sign Up</a>
+    </div>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="container my-4">
+  {% for msg in messages %}
+  <div class="alert alert-{{ msg.tags|default:'info' }} alert-dismissible fade show" role="alert">
+    {{ msg }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+
+  {% block content %}{% endblock %}
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

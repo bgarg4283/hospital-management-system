@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Patient Dashboard — HMS{% endblock %}
+
+{% block content %}
+<div class="hero rounded-3 px-4 mb-4">
+  <h2>🧑‍⚕️ Patient Dashboard</h2>
+  <p class="mb-0">Welcome, {{ user.get_full_name|default:user.email }}</p>
+</div>
+
+<!-- My Bookings -->
+{% if my_bookings %}
+<div class="card mb-4">
+  <div class="card-header"><h5 class="mb-0">📅 My Upcoming Appointments</h5></div>
+  <div class="card-body p-0">
+    <div class="list-group list-group-flush">
+      {% for booking in my_bookings %}
+      <div class="list-group-item slot-booked">
+        <strong>Dr. {{ booking.slot.doctor.get_full_name }}</strong>
+        <span class="text-muted mx-2">|</span>
+        {{ booking.slot.date|date:"D, d M Y" }}
+        <span class="text-muted mx-1">at</span>
+        {{ booking.slot.start_time|time:"H:i" }} – {{ booking.slot.end_time|time:"H:i" }}
+        <span class="badge bg-success ms-2">Confirmed</span>
+        {% if booking.patient_gcal_event_id %}
+        <span class="badge bg-info ms-1">📅 Added to Calendar</span>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Doctors List -->
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">👨‍⚕️ Available Doctors</h5>
+    <span class="badge bg-secondary">{{ doctors.count }} doctors</span>
+  </div>
+  <div class="card-body">
+    {% if doctors %}
+    <div class="row g-3">
+      {% for doctor in doctors %}
+      <div class="col-md-4">
+        <div class="card h-100 border">
+          <div class="card-body">
+            <h6 class="card-title">Dr. {{ doctor.get_full_name|default:doctor.email }}</h6>
+            {% if doctor.doctor_profile.specialization %}
+            <p class="text-muted small mb-1">{{ doctor.doctor_profile.specialization }}</p>
+            {% endif %}
+            <a href="{% url 'doctor_slots' doctor.pk %}" class="btn btn-sm btn-primary mt-2 w-100">
+              View Available Slots
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-muted text-center my-3">No doctors registered yet.</p>
+    {% endif %}
+  </div>
+</div>
+
+{% if not user.google_access_token %}
+<div class="alert alert-info mt-4">
+  <strong>📅 Optional: Connect Google Calendar</strong> — Get your appointments added automatically.
+  <a href="{% url 'google_oauth_start' %}" class="btn btn-sm btn-info ms-2">Connect</a>
+</div>
+{% endif %}
+{% endblock %}
