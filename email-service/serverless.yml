@@ -4,15 +4,8 @@ frameworkVersion: '3'
 
 provider:
   name: aws
-  runtime: python3.11
+  runtime: nodejs18.x
   region: us-east-1
-  # Environment variables — set real values in .env or export before running
-  environment:
-    SMTP_HOST: ${env:SMTP_HOST, 'smtp.gmail.com'}
-    SMTP_PORT: ${env:SMTP_PORT, '587'}
-    SMTP_USER: ${env:SMTP_USER, ''}
-    SMTP_PASSWORD: ${env:SMTP_PASSWORD, ''}
-    FROM_EMAIL: ${env:FROM_EMAIL, ''}
 
 functions:
   sendEmail:

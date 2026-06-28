@@ -169,11 +169,22 @@ def _post_booking_actions(booking: Booking):
             date=slot.date,
             start_time=slot.start_time,
             end_time=slot.end_time,
-            description=f"Booked via HMS. Booking ID: {booking.pk}",
+            description=(
+                f"🏥 Hospital Management System — Appointment Confirmation\n\n"
+                f"Doctor     : Dr. {doctor.get_full_name()}\n"
+                f"Patient    : {patient.get_full_name()}\n"
+                f"Date       : {slot.date.strftime('%A, %d %B %Y')}\n"
+                f"Time       : {slot.start_time.strftime('%H:%M')} – {slot.end_time.strftime('%H:%M')}\n"
+                f"Email      : {doctor.email}\n\n"
+                f"Booking ID : #{booking.pk}\n"
+                f"Status     : Confirmed\n\n"
+                f"Please arrive 10 minutes before your appointment."
+            ),
         )
         if patient_event_id:
             booking.patient_gcal_event_id = patient_event_id
 
+    # Google Calendar — doctor calendar
     # Google Calendar — doctor calendar
     if doctor.google_access_token:
         doctor_event_id = create_calendar_event(
@@ -182,7 +193,16 @@ def _post_booking_actions(booking: Booking):
             date=slot.date,
             start_time=slot.start_time,
             end_time=slot.end_time,
-            description=f"Patient: {patient.email}. Booking ID: {booking.pk}",
+            description=(
+                f"🏥 Hospital Management System — Patient Appointment\n\n"
+                f"Doctor     : Dr. {doctor.get_full_name()}\n"
+                f"Patient    : {patient.get_full_name()}\n"
+                f"Date       : {slot.date.strftime('%A, %d %B %Y')}\n"
+                f"Time       : {slot.start_time.strftime('%H:%M')} – {slot.end_time.strftime('%H:%M')}\n"
+                f"Email      : {patient.email}\n\n"
+                f"Booking ID : #{booking.pk}\n"
+                f"Status     : Confirmed"
+            ),
         )
         if doctor_event_id:
             booking.doctor_gcal_event_id = doctor_event_id
